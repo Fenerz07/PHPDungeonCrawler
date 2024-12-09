@@ -1,0 +1,6 @@
+{
+    "name": "phpdc/phpdc",
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
