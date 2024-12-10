@@ -11,9 +11,9 @@
         <h1>PHP Dungeon Crawler</h1>
     </header>
     <main>
-        <?php
-            require_once 'class.php';
-        ?>
+        <div class="container">
+            <button class="btn btn-primary" onclick="window.location.href='class.php'">Play</button>
+        </div>
     </main>
     <footer>
         <p></p>
