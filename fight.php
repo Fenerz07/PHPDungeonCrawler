@@ -7,43 +7,48 @@
 </head>
 <body>
 
-    <?php
+<?php
+function fight($player, $monsters) {
+    $playerName = $player->class;
+    $playerAttack = $player->attack;
+    $playerDefense = $player->defense;
+    $playerAgility = $player->agility;
+    $playerPV = $player->pv;
 
-    function fight($player, $monster) {
-        $playerAttack = $player['attack'];
-        $playerDefense = $player['defense'];
-        $playerAgility = $player['agility'];
-        $playerPV = $player['pv'];
+    echo "<h2>Combat begins!</h2>";
 
-        $monsterAttack = $monster['attack'];
-        $monsterDefense = $monster['defense'];
-        $monsterAgility = $monster['agility'];
-        $monsterPV = $monster['pv'];
+    while ($playerPV > 0 && count($monsters) > 0) {
+        $targetMonster = $monsters[0]; 
+        $playerDamage = max(0, $playerAttack - $targetMonster->defense);
+        $targetMonster->pv -= $playerDamage;
+        echo "$playerName hits $targetMonster->name for $playerDamage damage. $targetMonster->name has $targetMonster->pv PV left.<br>";
 
-        $playerDamage = $playerAttack - $monsterDefense;
-        $monsterDamage = $monsterAttack - $playerDefense;
-
-        while ($playerPV > 0 && $monsterPV > 0) {
-            $playerHit = rand(1, 20) + $playerAgility;
-            $monsterHit = rand(1, 20) + $monsterAgility;
-
-            if ($playerHit > $monsterHit) {
-                $monsterPV -= $playerDamage;
-                echo "Player hits monster for $playerDamage damage. Monster has $monsterPV PV left.<br>";
-            } else {
-                $playerPV -= $monsterDamage;
-                echo "Monster hits player for $monsterDamage damage. Player has $playerPV PV left.<br>";
-            }
+        if ($targetMonster->pv <= 0) {
+            echo "$targetMonster->name has been defeated!<br>";
+            array_shift($monsters);
         }
 
-        if ($playerPV <= 0) {
-            echo "Player has been defeated!";
-        } else {
-            echo "Monster has been defeated!";
+        foreach ($monsters as $monster) {
+            $monsterDamage = max(0, $monster->attack - $playerDefense);
+            $playerPV -= $monsterDamage;
+            echo "$monster->name hits $playerName for $monsterDamage damage. $playerName has $playerPV PV left.<br>";
+
+            if ($playerPV <= 0) {
+                echo "$playerName has been defeated by $monster->name!<br>";
+                break 2;
+            }
         }
     }
 
-    ?>
+    if ($playerPV > 0) {
+        echo "$playerName has survived the room!<br>";
+    } else {
+        echo "$playerName has been defeated in the room.<br>";
+    }
+
+    $_SESSION['player_pv'] = $playerPV;
+}
+?>
     
 </body>
 </html>
