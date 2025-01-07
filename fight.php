@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-
 <?php
+
 function fight($player, $monsters) {
     $playerName = $player->class;
     $playerAttack = $player->attack;
@@ -17,15 +9,20 @@ function fight($player, $monsters) {
 
     echo "<h2>Combat begins!</h2>";
 
-    while ($playerPV > 0 && count($monsters) > 0) {
-        $targetMonster = $monsters[0]; 
-        $playerDamage = max(0, $playerAttack - $targetMonster->defense);
-        $targetMonster->pv -= $playerDamage;
-        echo "$playerName hits $targetMonster->name for $playerDamage damage. $targetMonster->name has $targetMonster->pv PV left.<br>";
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+        $action = $_POST['action'];
+        $targetIndex = isset($_POST['target']) ? $_POST['target'] : 0;
+        $targetMonster = $monsters[$targetIndex];
 
-        if ($targetMonster->pv <= 0) {
-            echo "$targetMonster->name has been defeated!<br>";
-            array_shift($monsters);
+        if ($action == 'attack') {
+            $playerDamage = max(0, $playerAttack - $targetMonster->defense);
+            $targetMonster->pv -= $playerDamage;
+            echo "$playerName hits $targetMonster->name for $playerDamage damage. $targetMonster->name has $targetMonster->pv PV left.<br>";
+
+            if ($targetMonster->pv <= 0) {
+                echo "$targetMonster->name has been defeated!<br>";
+                array_splice($monsters, $targetIndex, 1);
+            }
         }
 
         foreach ($monsters as $monster) {
@@ -35,20 +32,37 @@ function fight($player, $monsters) {
 
             if ($playerPV <= 0) {
                 echo "$playerName has been defeated by $monster->name!<br>";
-                break 2;
+                break;
             }
         }
+
+        $_SESSION['player_pv'] = $playerPV;
+        $_SESSION['monsters'] = serialize($monsters);
+    }
+
+    if ($playerPV > 0 && count($monsters) > 0) {
+        echo "<form method='post'>";
+        echo "<input type='hidden' name='action' value='attack'>";
+        echo "<label for='target'>Choose a target:</label>";
+        echo "<select name='target'>";
+        foreach ($monsters as $index => $monster) {
+            echo "<option value='$index'>{$monster->name} (PV: {$monster->pv})</option>";
+        }
+        echo "</select>";
+        echo "<button type='submit'>Attack</button>";
+        echo "</form>";
+        return;
     }
 
     if ($playerPV > 0) {
         echo "$playerName has survived the room!<br>";
+        unset($_SESSION['monsters']);
+        $_SESSION['current_room'] += 1; // Move to the next room
+        echo "<form method='post'>";
+        echo "<button type='submit'>Continue to the next room</button>";
+        echo "</form>";
     } else {
         echo "$playerName has been defeated in the room.<br>";
     }
-
-    $_SESSION['player_pv'] = $playerPV;
 }
 ?>
-    
-</body>
-</html>

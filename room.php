@@ -5,8 +5,9 @@
 </head>
 <body>
     <?php
+
     require_once 'monster.php';
-    require_once 'game.php';
+    require_once 'player.php';
     require_once 'fight.php';
 
     function generateMonster($baseMonster, $roomNumber) {
@@ -17,17 +18,15 @@
         return new Monster($baseMonster->name, $pv, $attack, $defense, $agility);
     }
 
-    $difficulty = 2;
-
     $baseMonsters = [
-        new Monster('Skeleton', round(50 / $difficulty), round(5 / $difficulty), round(5 / $difficulty), round(5 / $difficulty)),
-        new Monster('Zombie', round(52 / $difficulty), round(6 / $difficulty), round(5 / $difficulty), round(5 / $difficulty)),
-        new Monster('Spider', round(49 / $difficulty), round(5 / $difficulty), round(6 / $difficulty), round(5 / $difficulty)),
-        new Monster('Wolf', round(55 / $difficulty), round(7 / $difficulty), round(6 / $difficulty), round(6 / $difficulty)),
-        new Monster('Goblin', round(51 / $difficulty), round(5 / $difficulty), round(5 / $difficulty), round(5 / $difficulty)),
-        new Monster('Golem', round(70 / $difficulty), round(5 / $difficulty), round(10 / $difficulty), round(3 / $difficulty)),
-        new Monster('Werewolf', round(58 / $difficulty), round(8 / $difficulty), round(7 / $difficulty), round(6 / $difficulty)),
-        new Monster('Deamon', round(62 / $difficulty), round(8 / $difficulty), round(7 / $difficulty), round(6 / $difficulty)),
+        new Monster('Skeleton', 50, 5, 5, 5),
+        new Monster('Zombie', 52, 6, 5, 5),
+        new Monster('Spider', 49, 5, 6, 5),
+        new Monster('Wolf', 55, 7, 6, 6),
+        new Monster('Goblin', 51, 5, 5, 5),
+        new Monster('Golem', 70, 5, 10, 3),
+        new Monster('Werewolf', 58, 8, 7, 6),
+        new Monster('Deamon', 62, 8, 7, 6),
     ];
 
     function generateDungeonRooms($totalRooms, $baseMonsters) {
@@ -50,25 +49,61 @@
     $monsterByRoom = 3;
     $dungeonRooms = generateDungeonRooms($totalRooms, $baseMonsters);
 
-
-    $player = unserialize($_SESSION['player']);
-    $player->pv = $_SESSION['player_pv'];
-
-    foreach ($dungeonRooms as $index => $room) {
-        echo "Salle " . ($index + 1) . ": " . $room . "<br>";
-        if ($room == "Salle de combat") {
-            $monsters = [];
-            for ($j = 0; $j < $monsterByRoom; $j++) {
-                $baseMonster = $baseMonsters[array_rand($baseMonsters)];
-                $monsters[$j] = generateMonster($baseMonster, ($index + 1));
-                $monsters[$j]->displayStats();
-                echo '<img width="200px" src="assets/images/' . $monsters[$j]->name . '.png" alt="' . $monsters[$j]->name . '">';
-                echo "<br>";
-            }
-            echo '<img width="200px" src="assets/images/' . $player->name . '.png" alt="' . $player->name . '">';
-            echo "<br>";
-            fight($player, $monsters);
+    if (!isset($_SESSION['player'])) {
+        if (isset($_POST['class'])) {
+            $playerClass = $_POST['class'];
+        } else {
+            $playerClass = 'Warrior'; 
         }
+        $player = new Player($playerClass);
+        $_SESSION['player'] = serialize($player);
+        $_SESSION['player_pv'] = $player->pv;
+        $_SESSION['current_room'] = 1;
+        echo "session initialized";
+    } else {
+        $player = unserialize($_SESSION['player']);
+        $player->pv = $_SESSION['player_pv'];
+        echo "session loaded";
+    }
+
+    if (!isset($_SESSION['monsters'])) {
+        echo "session monsters initialized";
+        foreach ($dungeonRooms as $index => $room) {
+            echo "Salle " . ($index + 1) . ": " . $room . "<br>";
+            if ($room == "Salle de combat") {
+                $monsters = [];
+                for ($j = 0; $j < $monsterByRoom; $j++) {
+                    $baseMonster = $baseMonsters[array_rand($baseMonsters)];
+                    $monsters[$j] = generateMonster($baseMonster, ($index + 1));
+                    $monsters[$j]->displayStats();
+                    echo '<img width="200px" src="assets/images/' . $monsters[$j]->name . '.png" alt="' . $monsters[$j]->name . '">';
+                    echo "<br>";
+                }
+                $_SESSION['monsters'] = serialize($monsters);
+                $_SESSION['current_room'] = $index + 1; 
+                echo '<img width="200px" src="assets/images/' . $player->name . '.png" alt="' . $player->name . '">';
+                echo "<br>";
+                fight($player, $monsters);
+                if ($monsters != []) {
+                    break;
+                }
+            }
+        }
+    } else {
+        if (isset($_SESSION['current_room'])) {
+            echo "Salle " . $_SESSION['current_room'] . ": Salle de combat<br>";
+        } else {
+            echo "Salle de combat<br>";
+        }
+        $monsters = unserialize($_SESSION['monsters']);
+        foreach ($monsters as $monster) {
+            $monster->displayStats();
+            echo '<img width="200px" src="assets/images/' . $monster->name . '.png" alt="' . $monster->name . '">';
+            echo "<br>";
+        }
+        echo '<img width="200px" src="assets/images/' . $player->name . '.png" alt="' . $player->name . '">';
+        echo "<br>";
+        fight($player, $monsters);
     }
 
     $_SESSION['player'] = serialize($player);
