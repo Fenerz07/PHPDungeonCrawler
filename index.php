@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHP Dungeon Crawler</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <title>The Dungeon Crawler</title>
+    <link rel="stylesheet" href="assets/css/index.module.css">
 </head>
 <body>
     <header>
-        <h1>PHP Dungeon Crawler</h1>
+        <h1>The Dungeon Crawler</h1>
     </header>
     <main>
         <div class="container">

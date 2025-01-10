@@ -43,7 +43,6 @@ class Player {
     }
 
     public function displayStats() {
-        echo "<div>You selected: $this->class</div>";
         echo "<div>Name: $this->name, PV: $this->pv, Attack: $this->attack, Defense: $this->defense, Agility: $this->agility</div>";
     }
 }

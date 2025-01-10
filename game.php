@@ -14,9 +14,6 @@
             $player = new Player($_POST['class']);
             $_SESSION['player'] = serialize($player);
             $_SESSION['player_pv'] = $player->pv;
-            $player->displayStats();
-        } else {
-            echo "<div>No class selected.</div>";
         }
 
         require_once 'room.php';

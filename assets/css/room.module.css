@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Uncial+Antiqua&display=swap');
+
+body {
+    font-family: 'MedievalSharp', sans-serif;
+    color: white;
+    background-color: #100000;
+    margin: 0;
+    padding: 0;
+}
+
+.room {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.room p {
+    font-size: 2rem;
+    font-weight: bold;
+    color: red;
+    text-align: center;
+}
+
+.monster{
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+    content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.player{
+    margin: 10px;
+    text-align: center;
+}
+
+.monster img, .player img {
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <title>Dungeon Crawler</title>
+    <link rel="stylesheet" href="assets/css/room.module.css">
 </head>
 <body>
     <?php
@@ -59,51 +60,56 @@
         $_SESSION['player'] = serialize($player);
         $_SESSION['player_pv'] = $player->pv;
         $_SESSION['current_room'] = 1;
-        echo "session initialized";
     } else {
         $player = unserialize($_SESSION['player']);
         $player->pv = $_SESSION['player_pv'];
-        echo "session loaded";
     }
 
     if (!isset($_SESSION['monsters'])) {
-        echo "session monsters initialized";
         foreach ($dungeonRooms as $index => $room) {
-            echo "Salle " . ($index + 1) . ": " . $room . "<br>";
+            echo "<div class='room'>";
+            echo "<p>Salle " . ($index + 1) . ": " . $room . "</p>";
             if ($room == "Salle de combat") {
                 $monsters = [];
                 for ($j = 0; $j < $monsterByRoom; $j++) {
                     $baseMonster = $baseMonsters[array_rand($baseMonsters)];
                     $monsters[$j] = generateMonster($baseMonster, ($index + 1));
+                    echo "<div class='monster'>";
                     $monsters[$j]->displayStats();
                     echo '<img width="200px" src="assets/images/' . $monsters[$j]->name . '.png" alt="' . $monsters[$j]->name . '">';
-                    echo "<br>";
+                    echo "</div>";
                 }
                 $_SESSION['monsters'] = serialize($monsters);
                 $_SESSION['current_room'] = $index + 1; 
+                echo "<div class='player'>";
                 echo '<img width="200px" src="assets/images/' . $player->name . '.png" alt="' . $player->name . '">';
-                echo "<br>";
+                echo "</div>";
                 fight($player, $monsters);
                 if ($monsters != []) {
                     break;
                 }
             }
+            echo "</div>";
         }
     } else {
+        echo "<div class='room'>";
         if (isset($_SESSION['current_room'])) {
-            echo "Salle " . $_SESSION['current_room'] . ": Salle de combat<br>";
+            echo "<p>Salle " . $_SESSION['current_room'] . ": Salle de combat</p>";
         } else {
-            echo "Salle de combat<br>";
+            echo "<p>Salle de combat</p>";
         }
         $monsters = unserialize($_SESSION['monsters']);
         foreach ($monsters as $monster) {
+            echo "<div class='monster'>";
             $monster->displayStats();
             echo '<img width="200px" src="assets/images/' . $monster->name . '.png" alt="' . $monster->name . '">';
-            echo "<br>";
+            echo "</div>";
         }
+        echo "<div class='player'>";
         echo '<img width="200px" src="assets/images/' . $player->name . '.png" alt="' . $player->name . '">';
-        echo "<br>";
+        echo "</div>";
         fight($player, $monsters);
+        echo "</div>";
     }
 
     $_SESSION['player'] = serialize($player);
